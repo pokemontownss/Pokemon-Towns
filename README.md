@@ -33,3 +33,14 @@ Open `index.html` in your browser.
 ## Version
 
 v1.0
+
+pokemon
+javascript
+html5
+css3
+game
+browser-game
+retro-game
+rpg
+pikachu
+web-game

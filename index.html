@@ -1,0 +1,734 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pokemon Towns Adventure</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Press Start 2P',system-ui;background:#0a0a1a;color:#fff;text-align:center;min-height:100vh;overflow-x:hidden}
+#titleScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,#0a0a1a,#1a1a3e,#0f0f2f);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 1s,transform 1s}
+#titleScreen.hidden{opacity:0;transform:scale(1.1);pointer-events:none}
+.title-logo{font-size:28px;color:#f0c030;text-shadow:0 0 10px rgba(240,192,48,.5),4px 4px 0 #000;margin-bottom:10px;animation:titlePulse 2s ease-in-out infinite;line-height:1.5}
+@keyframes titlePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.title-sub{font-size:12px;color:#888;margin-bottom:40px;text-shadow:2px 2px 0 #000}
+.title-pikachu{width:180px;height:180px;image-rendering:pixelated;margin-bottom:30px;filter:drop-shadow(0 0 20px rgba(240,192,48,.4));animation:titleFloat 3s ease-in-out infinite}
+@keyframes titleFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
+.menu-container{display:flex;flex-direction:column;gap:15px;margin-top:20px}
+.menu-btn{background:linear-gradient(180deg,#f0c030,#d0a020);color:#000;border:4px solid #000;padding:15px 40px;font-family:'Press Start 2P';font-size:14px;cursor:pointer;transition:all .2s;border-radius:8px;box-shadow:0 6px 0 #000;min-width:250px}
+.menu-btn:hover{transform:translateY(-3px);box-shadow:0 9px 0 #000}
+.menu-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #000}
+.menu-btn.secondary{background:linear-gradient(180deg,#444,#333);color:#f0c030;border-color:#f0c030;font-size:12px;padding:12px 30px;min-width:200px}
+.version-text{position:absolute;bottom:20px;font-size:10px;color:#555}
+.game-container{max-width:480px;margin:0 auto;background:linear-gradient(180deg,#1a1a2e,#16213e);border:8px solid #f0c030;border-radius:16px;box-shadow:0 0 30px rgba(240,192,48,.3);overflow:hidden;display:none}
+.game-container.active{display:block;animation:gameStart .5s ease}
+@keyframes gameStart{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.header{background:linear-gradient(90deg,#f0c030,#ffdd44,#f0c030);color:#000;padding:12px;font-size:16px;font-weight:bold;position:relative}
+.header::after{content:'⚡';position:absolute;right:15px;top:50%;transform:translateY(-50%);font-size:20px;animation:thunderPulse 1.5s ease-in-out infinite}
+@keyframes thunderPulse{0%,100%{opacity:.5}50%{opacity:1;transform:translateY(-50%) scale(1.3)}}
+.status-bar{background:linear-gradient(90deg,#0a0a1a,#1a1a2e);color:#f0c030;padding:8px;font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;border-bottom:2px solid rgba(240,192,48,.2)}
+.pikachu{width:140px;height:140px;animation:pikachuFloat 2s ease-in-out infinite alternate;image-rendering:pixelated;filter:drop-shadow(0 0 15px rgba(240,192,48,.4))}
+@keyframes pikachuFloat{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-20px) rotate(5deg)}}
+.log{background:linear-gradient(180deg,#0a0a1a,#111122);border:4px solid #f0c030;margin:15px 12px;padding:12px;height:160px;overflow-y:auto;text-align:left;font-size:11px;line-height:1.6;border-radius:8px;box-shadow:inset 0 0 20px rgba(0,0,0,.5)}
+button{background:linear-gradient(180deg,#f0c030,#d0a020);color:#000;border:4px solid #000;padding:10px 14px;margin:4px;font-family:'Press Start 2P';font-size:11px;cursor:pointer;transition:all .2s;border-radius:4px;box-shadow:0 4px 0 #000}
+button:hover{background:linear-gradient(180deg,#ffdd44,#e0b030);transform:translateY(-2px);box-shadow:0 6px 0 #000}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #000}
+.town-nav{background:linear-gradient(180deg,#111122,#0a0a1a);border-top:4px solid #f0c030;padding:10px}
+.town-btn{background:linear-gradient(180deg,#2a2a4a,#1a1a2e);color:#f0c030;border:3px solid #f0c030;font-size:10px;padding:8px 10px;margin:3px;border-radius:4px;box-shadow:0 3px 0 rgba(240,192,48,.3)}
+.town-btn.active{background:linear-gradient(180deg,#f0c030,#d0a020);color:#000;box-shadow:0 3px 0 #000}
+.hero-section{background:linear-gradient(180deg,#111122,#0a0a1a);border-top:6px solid #f0c030;padding:15px 10px}
+.hero-title{color:#f0c030;font-size:14px;margin-bottom:10px;text-shadow:0 0 10px rgba(240,192,48,.3)}
+.pikachu-hero{display:flex;align-items:center;justify-content:center;gap:15px;margin:12px 0;padding:8px;background:rgba(240,192,48,.05);border-radius:8px;border:1px solid rgba(240,192,48,.1)}
+.hero-sprite{width:80px;height:80px;image-rendering:pixelated;filter:drop-shadow(0 0 5px rgba(240,192,48,.3))}
+.rarity-bar{width:160px;height:16px;background:#222;border:2px solid #f0c030;position:relative;overflow:hidden;border-radius:8px}
+.rarity-fill{height:100%;transition:width .6s ease;border-radius:6px}
+.common{background:linear-gradient(90deg,#888,#aaa)}
+.rare{background:linear-gradient(90deg,#0af,#0ff)}
+.legendary{background:linear-gradient(90deg,#f0f,#ff0,#f0f,#ff0,#f0f)}
+.exp-bar{width:100%;height:8px;background:#222;border:1px solid #f0c030;margin-top:5px;position:relative;border-radius:4px;overflow:hidden}
+.exp-fill{height:100%;background:linear-gradient(90deg,#00f,#44f);transition:width .4s ease;border-radius:3px}
+.save-section{background:linear-gradient(180deg,#111122,#0a0a1a);padding:10px;border-top:4px solid #f0c030}
+.item-count{background:#2a5a2a;color:#fff;padding:2px 6px;border-radius:4px;font-size:9px}
+.level-badge{display:inline-block;background:linear-gradient(180deg,#f0c030,#d0a020);color:#000;padding:2px 6px;border-radius:4px;font-size:9px;margin-left:5px;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.pokemon-info{font-size:10px;color:#aaa;margin-top:5px}
+#battleModal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,30,.95);align-items:center;justify-content:center;z-index:1000}
+.battle-box{background:linear-gradient(180deg,#0a0a1a,#111122);border:8px solid #f0c030;padding:15px;max-width:420px;border-radius:16px;position:relative;width:95%;overflow:hidden;box-shadow:0 0 40px rgba(240,192,48,.2)}
+.battle-area{display:flex;justify-content:space-between;align-items:center;margin:15px 0;position:relative;min-height:160px;padding:20px 0}
+.pokemon-side{text-align:center;flex:1;position:relative;z-index:2}
+.enemy-side{transform:scaleX(-1)}
+.pokemon-sprite{width:100px;height:100px;image-rendering:pixelated;transition:all .3s;position:relative;z-index:3;filter:drop-shadow(0 0 8px rgba(255,255,255,.1))}
+.hp-bar-container{background:#222;height:14px;border:3px solid #f0c030;margin:8px 0;width:100%;position:relative;border-radius:7px;overflow:hidden}
+.hp-bar{height:100%;background:linear-gradient(90deg,#0f0,#5f5);transition:width 1s cubic-bezier(.4,0,.2,1);border-radius:4px}
+.hp-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#fff;text-shadow:1px 1px 2px #000}
+.red{background:linear-gradient(90deg,#f00,#f55)!important}
+.yellow{background:linear-gradient(90deg,#ff0,#ff5)!important}
+#battleLog{background:linear-gradient(180deg,#0a0a1a,#111122);color:#0f0;padding:12px;min-height:100px;text-align:left;font-size:11px;margin:10px 0;border:3px solid #f0c030;line-height:1.6;border-radius:8px;box-shadow:inset 0 0 20px rgba(0,0,0,.5)}
+.modal-close{position:absolute;top:10px;right:10px;background:#f00;color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #000}
+.skill-effect{position:absolute;pointer-events:none;z-index:10;display:none}
+.thunder-storm{width:120px;height:140px;top:-20px}
+.thunder-storm.enemy-target{left:10%;transform:scaleX(-1)}
+.thunder-storm.player-target{right:10%}
+.bolt{position:absolute;width:3px;background:linear-gradient(to bottom,#fff,#ffff00,#ff8800,#ffff00);border-radius:2px;opacity:0;box-shadow:0 0 10px #ffff00,0 0 20px #ff8800}
+.bolt.b1{height:40px;left:20%;top:0;animation:boltStrike .12s 0s 8 alternate}
+.bolt.b2{height:60px;left:40%;top:5%;animation:boltStrike .12s .08s 8 alternate}
+.bolt.b3{height:50px;left:60%;top:10%;animation:boltStrike .12s .16s 8 alternate}
+.bolt.b4{height:45px;left:30%;top:25%;animation:boltStrike .12s .04s 8 alternate}
+.bolt.b5{height:55px;left:50%;top:20%;animation:boltStrike .12s .12s 8 alternate}
+.bolt.b6{height:35px;left:70%;top:30%;animation:boltStrike .12s .2s 8 alternate}
+@keyframes boltStrike{0%{opacity:0;transform:scaleY(.2) skewX(-10deg)}50%{opacity:1;transform:scaleY(1) skewX(10deg)}100%{opacity:0;transform:scaleY(.3) skewX(-5deg)}}
+.electric-orb{position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,#ffff00 20%,#ff8800 60%,transparent 80%);top:50%;left:50%;transform:translate(-50%,-50%);opacity:0;box-shadow:0 0 20px #ffff00}
+.electric-orb.e1{animation:orbPulse .2s .3s 6}
+.electric-orb.e2{width:20px;height:20px;animation:orbPulse .2s .5s 6;background:radial-gradient(circle,#fff 30%,#ffff00 70%,transparent)}
+@keyframes orbPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+.speed-blur{width:100px;height:100px}
+.speed-blur.enemy-target{left:15%}
+.speed-blur.player-target{right:15%}
+.speed-line{position:absolute;height:2px;background:linear-gradient(90deg,transparent,#00ffff,#fff,#00ffff,transparent);border-radius:1px;opacity:0;box-shadow:0 0 8px #00ffff}
+.speed-line.s1{width:80px;top:20%;left:10%;animation:speedSlash .15s 0s 8}
+.speed-line.s2{width:60px;top:40%;left:20%;animation:speedSlash .15s .1s 8}
+.speed-line.s3{width:70px;top:60%;left:15%;animation:speedSlash .15s .2s 8}
+.speed-line.s4{width:50px;top:30%;left:40%;animation:speedSlash .15s .05s 8}
+.speed-line.s5{width:65px;top:50%;left:35%;animation:speedSlash .15s .15s 8}
+.speed-line.s6{width:55px;top:70%;left:25%;animation:speedSlash .15s .25s 8}
+@keyframes speedSlash{0%{opacity:0;transform:translateX(-40px) scaleX(.2)}50%{opacity:1;transform:translateX(20px) scaleX(1.3)}100%{opacity:0;transform:translateX(60px) scaleX(.5)}}
+.spiral-vortex{width:120px;height:120px}
+.spiral-vortex.enemy-target{left:10%}
+.spiral-vortex.player-target{right:10%}
+.vortex-ring{position:absolute;border:3px solid;border-radius:50%;top:50%;left:50%;opacity:0}
+.vortex-ring.v1{width:30px;height:30px;border-color:#ff00ff;animation:vortexSpin .4s 0s 5;box-shadow:0 0 10px #ff00ff,inset 0 0 10px #ff00ff}
+.vortex-ring.v2{width:60px;height:60px;border-color:#00ffff;animation:vortexSpin .4s .15s 5;box-shadow:0 0 10px #00ffff,inset 0 0 10px #00ffff}
+.vortex-ring.v3{width:90px;height:90px;border-color:#ffff00;animation:vortexSpin .4s .3s 5;box-shadow:0 0 10px #ffff00,inset 0 0 10px #ffff00}
+.vortex-ring.v4{width:120px;height:120px;border-color:#ff00ff;animation:vortexSpin .4s .45s 5;box-shadow:0 0 10px #ff00ff,inset 0 0 10px #ff00ff}
+@keyframes vortexSpin{0%{opacity:0;transform:translate(-50%,-50%) scale(0) rotate(0deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(120deg)}70%{opacity:.8;transform:translate(-50%,-50%) scale(1.2) rotate(270deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(360deg)}}
+.ember-burst{width:120px;height:120px}
+.ember-burst.enemy-target{right:10%;transform:scaleX(-1)}
+.ember-burst.player-target{left:10%}
+.ember-ball{position:absolute;width:25px;height:25px;border-radius:50%;background:radial-gradient(circle,#ffffcc 15%,#ff6600 50%,#ff0000 80%,transparent 100%);top:50%;left:50%;transform:translate(-50%,-50%);opacity:0;box-shadow:0 0 20px #ff6600}
+.ember-ball.em1{animation:emberFly 1s 0s 1 forwards}
+.ember-ball.em2{width:18px;height:18px;animation:emberFly 1s .15s 1 forwards;background:radial-gradient(circle,#ffcc00 25%,#ff4400 65%,transparent 100%)}
+.ember-ball.em3{width:15px;height:15px;animation:emberFly 1s .3s 1 forwards;background:radial-gradient(circle,#ffdd44 35%,#ff2200 75%,transparent 100%)}
+@keyframes emberFly{0%{opacity:1;transform:translate(-50%,-50%) scale(.3) translateX(-60px)}25%{opacity:1;transform:translate(-50%,-50%) scale(1) translateX(-30px)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.3) translateX(0)}75%{opacity:.8;transform:translate(-50%,-50%) scale(1.5) translateX(20px)}100%{opacity:0;transform:translate(-50%,-50%) scale(2) translateX(40px)}}
+.screen-flash{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,200,.4);animation:flashAnim .15s 8 alternate;display:none;z-index:8;pointer-events:none}
+@keyframes flashAnim{0%{opacity:.8}100%{opacity:.1}}
+.screen-shake-strong{animation:shakeStrong .6s ease}
+@keyframes shakeStrong{0%,100%{transform:translate(0,0)}10%{transform:translate(-6px,-5px) rotate(-1deg)}20%{transform:translate(6px,5px) rotate(1deg)}30%{transform:translate(-8px,3px) rotate(-2deg)}40%{transform:translate(8px,-3px) rotate(2deg)}50%{transform:translate(-5px,6px) rotate(-1deg)}60%{transform:translate(5px,-6px) rotate(1deg)}70%{transform:translate(-3px,4px)}80%{transform:translate(3px,-4px)}90%{transform:translate(-2px,2px)}}
+.damage-popup{position:absolute;font-size:28px;font-weight:bold;z-index:15;pointer-events:none;animation:damageFloat 1.5s ease forwards;text-shadow:3px 3px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000}
+.damage-popup.normal{color:#ff4444}
+.damage-popup.crit{color:#ffff00;font-size:36px;animation:critFloat 1.8s ease forwards}
+.damage-popup.heal{color:#44ff44;font-size:24px}
+@keyframes damageFloat{0%{opacity:1;transform:translateY(0) scale(.5) rotate(-5deg)}20%{opacity:1;transform:translateY(-20px) scale(1.3) rotate(3deg)}40%{opacity:1;transform:translateY(-40px) scale(1.1) rotate(-2deg)}70%{opacity:.7;transform:translateY(-60px) scale(.9) rotate(1deg)}100%{opacity:0;transform:translateY(-90px) scale(.6)}}
+@keyframes critFloat{0%{opacity:1;transform:translateY(0) scale(.3) rotate(-10deg)}15%{opacity:1;transform:translateY(-15px) scale(1.5) rotate(5deg)}30%{opacity:1;transform:translateY(-30px) scale(1.3) rotate(-5deg)}50%{opacity:1;transform:translateY(-50px) scale(1.4) rotate(3deg)}70%{opacity:.8;transform:translateY(-70px) scale(1.1) rotate(-2deg)}100%{opacity:0;transform:translateY(-100px) scale(.7)}}
+.levelup-overlay{position:absolute;top:0;left:0;right:0;bottom:0;display:none;z-index:20;pointer-events:none;align-items:center;justify-content:center}
+.levelup-star{position:absolute;width:25px;height:25px;background:#ffff00;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);opacity:0}
+.levelup-star.ls1{top:15%;left:50%;animation:starBurst 1.2s 0s 1 forwards}
+.levelup-star.ls2{top:35%;left:25%;animation:starBurst 1.2s .15s 1 forwards;width:18px;height:18px}
+.levelup-star.ls3{top:35%;left:75%;animation:starBurst 1.2s .3s 1 forwards;width:18px;height:18px}
+.levelup-star.ls4{top:55%;left:20%;animation:starBurst 1.2s .45s 1 forwards;width:15px;height:15px}
+.levelup-star.ls5{top:55%;left:80%;animation:starBurst 1.2s .6s 1 forwards;width:15px;height:15px}
+.levelup-star.ls6{top:75%;left:50%;animation:starBurst 1.2s .75s 1 forwards;width:22px;height:22px}
+@keyframes starBurst{0%{opacity:0;transform:scale(0) rotate(0deg)}40%{opacity:1;transform:scale(1.8) rotate(180deg)}70%{opacity:1;transform:scale(1.3) rotate(300deg)}100%{opacity:0;transform:scale(0) rotate(360deg) translateY(-60px)}}
+.levelup-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;color:#ffff00;text-shadow:4px 4px 0 #000,0 0 30px #ffff00;opacity:0;animation:levelupTextAnim 2s .3s 1 forwards;white-space:nowrap}
+@keyframes levelupTextAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}75%{opacity:1;transform:translate(-50%,-55%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-70%) scale(.8)}}
+.evolution-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,0,.8) 0%,rgba(255,136,0,.4) 40%,transparent 70%);opacity:0;display:none;z-index:15;pointer-events:none}
+.evolution-glow.active{display:block;animation:evolvePulse 2s ease infinite}
+@keyframes evolvePulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(.8)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}}
+#pokedexModal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,30,.95);align-items:center;justify-content:center;z-index:1000}
+.pokedex-box{background:linear-gradient(180deg,#dc0a0a,#a00);border:8px solid #000;padding:15px;max-width:400px;border-radius:12px;width:95%;max-height:80vh;overflow-y:auto;box-shadow:0 0 30px rgba(220,10,10,.3)}
+.pokedex-entry{display:flex;align-items:center;gap:10px;padding:8px;background:#fff;color:#000;margin:5px 0;border-radius:8px;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.pokedex-sprite{width:50px;height:50px;image-rendering:pixelated}
+.pokedex-caught{background:linear-gradient(90deg,#4CAF50,#5f5);color:#fff}
+.pokedex-uncaught{background:#ccc;opacity:.6}
+#howToPlayModal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:10000;align-items:center;justify-content:center}
+@media(max-width:480px){.title-logo{font-size:20px}.title-pikachu{width:140px;height:140px}.menu-btn{font-size:12px;padding:12px 30px;min-width:200px}.game-container{border-width:4px}button{font-size:10px;padding:8px 10px}.pikachu{width:120px;height:120px}}
+    </style></head><body>
+<div id="titleScreen">
+<img class="title-pikachu" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
+<div class="title-logo">POKEMON<br>TOWNS ADVENTURE</div>
+<div class="title-sub">The Journey Begins</div>
+<div class="menu-container">
+<button class="menu-btn" onclick="startGame()">NEW GAME</button>
+<button class="menu-btn" onclick="continueGame()">CONTINUE</button>
+<button class="menu-btn secondary" onclick="showHowToPlay()">HOW TO PLAY</button>
+</div>
+<div class="version-text">v1.0 - Press START to begin</div>
+</div>
+    
+<div id="howToPlayModal" onclick="closeHowToPlay()">
+<div style="background:linear-gradient(180deg,#1a1a2e,#0a0a1a);border:6px solid #f0c030;padding:20px;max-width:350px;border-radius:12px;color:#fff;text-align:left;font-size:11px;line-height:1.8" onclick="event.stopPropagation()">
+<div style="color:#f0c030;font-size:16px;text-align:center;margin-bottom:15px">HOW TO PLAY</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">EXPLORE</strong> - Find wild Pokemon and items</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">GYM BATTLE</strong> - Challenge gym leaders for badges</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">Thunder Shock</strong> - Strong electric attack (Key 1)</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">Quick Attack</strong> - Fast normal attack (Key 2)</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">Tail Whip</strong> - Lowers enemy attack (Key 3)</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">Potion</strong> - Heal 40 HP (Key 4)</div>
+<div style="margin-bottom:10px"><strong style="color:#f0c030">FLEE</strong> - Run from battle (ESC)</div>
+<div style="text-align:center;margin-top:15px">
+<button onclick="closeHowToPlay()" style="padding:8px 20px;font-size:12px">CLOSE</button>
+</div>
+</div>
+</div>
+    
+<div class="game-container" id="gameContainer">
+<div class="header">POKEMON TOWNS ADVENTURE</div>
+<div class="status-bar">
+<span id="trainerInfo">Trainer: <strong>Noknehrn</strong></span>
+<span id="statusInfo">Pokemon: 1 | Badges: 0/8</span>
+</div>
+<div style="margin:15px 0">
+<img id="mainPikachu" class="pikachu" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
+</div>
+<div style="color:#f0c030;font-size:20px;text-shadow:0 0 10px rgba(240,192,48,.5)" id="townName">Pallet Town</div>
+<div style="color:#aaa;font-size:12px" id="townDesc">Where legends are born!</div>
+<div class="log" id="log"></div>
+<div style="padding:10px">
+<button onclick="explore()">EXPLORE</button>
+<button onclick="battleGymLeader()">GYM BATTLE</button><br>
+<button onclick="healPokemon()">HEAL UP</button>
+<button onclick="showPokedex()">POKEDEX</button><br>
+<button onclick="usePotion()">POTION <span class="item-count" id="potionCount">x3</span></button>
+<button onclick="showDuplicateMenu()">CLONE</button>
+<button onclick="talkToNPC()">CHAT</button>
+</div>
+<div class="town-nav">
+<div style="color:#f0c030;font-size:12px;margin-bottom:8px;text-shadow:0 0 5px rgba(240,192,48,.3)">FAST TRAVEL</div>
+<div id="townButtons">
+<button class="town-btn active" onclick="travelTo('Pallet Town')" id="btn-Pallet">Pallet</button>
+<button class="town-btn" onclick="travelTo('Viridian City')" id="btn-Viridian">Viridian</button>
+<button class="town-btn" onclick="travelTo('Pewter City')" id="btn-Pewter">Pewter</button>
+<button class="town-btn" onclick="travelTo('Cerulean City')" id="btn-Cerulean">Cerulean</button>
+</div>
+</div>
+<div class="hero-section">
+<div class="hero-title">YOUR CHAMPION</div>
+<div class="pikachu-hero">
+<img class="hero-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
+<div style="text-align:left">
+<strong>Pikachu</strong><span class="level-badge" id="heroLevel">Lv.5</span><br>
+<span style="color:#0f0">Common</span> 70%<br>
+<div class="rarity-bar"><div class="rarity-fill common" style="width:70%"></div></div>
+<div class="pokemon-info">HP: <span id="heroHP">80/80</span> | ATK: <span id="heroATK">55</span></div>
+<div class="exp-bar"><div class="exp-fill" id="heroExp" style="width:0%"></div></div>
+<div style="font-size:8px;color:#aaa">EXP</div>
+</div>
+</div>
+<div class="pikachu-hero">
+<img class="hero-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png" alt="Raichu">
+<div style="text-align:left">
+<strong>Raichu</strong><br>
+<span style="color:#0af">Rare</span> 25%<br>
+<div class="rarity-bar"><div class="rarity-fill rare" style="width:25%"></div></div>
+</div>
+</div>
+<div class="pikachu-hero">
+<img class="hero-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Legendary">
+<div style="text-align:left">
+<strong>Legendary Pikachu</strong><br>
+<span style="color:#ff0">Legendary</span> 5%<br>
+<div class="rarity-bar"><div class="rarity-fill legendary" style="width:5%"></div></div>
+</div>
+</div>
+</div>
+<div class="save-section">
+<button onclick="saveGame()" style="background:linear-gradient(180deg,#0a0,#050);color:#fff;border-color:#0f0">SAVE</button>
+<button onclick="loadGame()" style="background:linear-gradient(180deg,#00a,#005);color:#fff;border-color:#00f">LOAD</button>
+<button onclick="backToTitle()" style="background:linear-gradient(180deg,#444,#222);color:#f0c030;border-color:#f0c030">MENU</button>
+</div>
+</div>
+    
+<div id="battleModal">
+<div class="battle-box" id="battleBox">
+<button class="modal-close" onclick="endBattle()">X</button>
+<div style="color:#f0c030;font-size:16px;margin-bottom:10px;text-shadow:0 0 10px rgba(240,192,48,.5)">BATTLE ARENA</div>
+<div class="battle-area" id="battleArea">
+<div class="screen-flash" id="screenFlash"></div>
+<div class="evolution-glow" id="evolutionGlow"></div>
+<div class="levelup-overlay" id="levelupOverlay">
+<div class="levelup-star ls1"></div><div class="levelup-star ls2"></div><div class="levelup-star ls3"></div>
+<div class="levelup-star ls4"></div><div class="levelup-star ls5"></div><div class="levelup-star ls6"></div>
+<div class="levelup-text" id="levelupText">LEVEL UP!</div>
+</div>
+<div class="skill-effect thunder-storm enemy-target" id="thunderEnemy">
+<div class="bolt b1"></div><div class="bolt b2"></div><div class="bolt b3"></div>
+<div class="bolt b4"></div><div class="bolt b5"></div><div class="bolt b6"></div>
+<div class="electric-orb e1"></div><div class="electric-orb e2"></div>
+</div>
+<div class="skill-effect speed-blur enemy-target" id="speedEnemy">
+<div class="speed-line s1"></div><div class="speed-line s2"></div><div class="speed-line s3"></div>
+<div class="speed-line s4"></div><div class="speed-line s5"></div><div class="speed-line s6"></div>
+</div>
+<div class="skill-effect spiral-vortex enemy-target" id="vortexEnemy">
+<div class="vortex-ring v1"></div><div class="vortex-ring v2"></div>
+<div class="vortex-ring v3"></div><div class="vortex-ring v4"></div>
+</div>
+<div class="skill-effect ember-burst player-target" id="emberPlayer">
+<div class="ember-ball em1"></div><div class="ember-ball em2"></div><div class="ember-ball em3"></div>
+</div>
+<div id="damagePopup" class="damage-popup" style="display:none"></div>
+<div class="pokemon-side enemy-side" id="enemySide">
+<div id="enemyName" style="color:#f66;font-size:12px"></div>
+<div class="hp-bar-container"><div id="enemyHPBar" class="hp-bar" style="width:100%"></div><div class="hp-text" id="enemyHPText">65/65</div></div>
+<img id="enemySprite" class="pokemon-sprite" src="" alt="">
+</div>
+<div style="color:#f0c030;font-size:20px;align-self:center;text-shadow:0 0 10px rgba(240,192,48,.5)">VS</div>
+<div class="pokemon-side" id="playerSide">
+<div id="playerName" style="color:#0f0;font-size:12px">PIKACHU</div>
+<div class="hp-bar-container"><div id="playerHPBar" class="hp-bar" style="width:100%"></div><div class="hp-text" id="playerHPText">80/80</div></div>
+<img id="playerSprite" class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="">
+</div>
+</div>
+<div id="battleLog"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<button onclick="playerAttack('Thunder Shock')">Thunder Shock</button>
+<button onclick="playerAttack('Quick Attack')">Quick Attack</button>
+<button onclick="playerAttack('Tail Whip')">Tail Whip</button>
+<button onclick="usePotionInBattle()">Heal Up</button>
+<button onclick="endBattle()" style="grid-column:span 2">FLEE</button>
+</div>
+</div>
+</div>
+    
+<div id="pokedexModal">
+<div class="pokedex-box">
+<button class="modal-close" onclick="closePokedex()" style="position:relative;top:0;right:0;margin-bottom:10px">X</button>
+<div style="color:#fff;font-size:16px;margin-bottom:15px">POKEDEX</div>
+<div id="pokedexContent"></div>
+</div>
+</div>
+    
+<script>
+const TOWNS={"Pallet Town":{desc:"Where legends are born!",wild:["Rattata","Pidgey"],gym:null,color:"#f0c030"},"Viridian City":{desc:"The gateway to adventure!",wild:["Weedle","Caterpie","Pidgey"],gym:null,color:"#f0c030"},"Pewter City":{desc:"Stone cold challenge!",wild:["Geodude","Sandshrew","Zubat"],gym:{leader:"Brock",pokemon:"Geodude",badge:"Boulder"},color:"#f0c030"},"Cerulean City":{desc:"Ride the wave!",wild:["Psyduck","Poliwag","Meowth"],gym:{leader:"Misty",pokemon:"Staryu",badge:"Cascade"},color:"#f0c030"}};
+
+const POKEDEX_DATA={"Pikachu":{id:25,type:"Electric",desc:"The Electric Mouse Pokemon. It stores electricity in its cheeks!"},"Raichu":{id:26,type:"Electric",desc:"The evolved form of Pikachu. Its electric shocks can knock out a foe!"},"Rattata":{id:19,type:"Normal",desc:"The Mouse Pokemon. Its fangs are powerful enough to gnaw through steel!"},"Pidgey":{id:16,type:"Normal/Flying",desc:"The Tiny Bird Pokemon. It may be small but it's incredibly swift!"},"Geodude":{id:74,type:"Rock/Ground",desc:"The Rock Pokemon. It floats using magnetic force!"},"Sandshrew":{id:27,type:"Ground",desc:"The Mouse Pokemon. It burrows with its massive claws!"},"Zubat":{id:41,type:"Poison/Flying",desc:"The Bat Pokemon. Blind but deadly with its sonic radar!"},"Weedle":{id:13,type:"Bug/Poison",desc:"The Hairy Bug Pokemon. Its stinger is dripping with venom!"},"Caterpie":{id:10,type:"Bug",desc:"The Worm Pokemon. It shoots silk from its mouth to trap foes!"},"Psyduck":{id:54,type:"Water",desc:"The Duck Pokemon. Always confused but packs a psychic punch!"},"Poliwag":{id:60,type:"Water",desc:"The Tadpole Pokemon. Its belly spiral changes with its mood!"},"Meowth":{id:52,type:"Normal",desc:"The Scratch Cat Pokemon. It loves anything shiny and valuable!"},"Staryu":{id:120,type:"Water",desc:"The Star Shape Pokemon. Its core glows with mysterious red light!"}};
+
+let player={name:"Noknehrn",currentTown:"Pallet Town",pokemon:[{name:"Pikachu",hp:80,maxHp:80,atk:55,level:5,exp:0,maxExp:100}],pokedex:new Set(["Pikachu"]),badges:[],potions:3,gymDefeated:{}};
+let currentEnemy=null,playerMon=null,inBattle=false,battleButtonsLocked=false;
+
+function startGame(){
+document.getElementById('titleScreen').classList.add('hidden');
+setTimeout(()=>{
+document.getElementById('titleScreen').style.display='none';
+document.getElementById('gameContainer').classList.add('active');
+resetGame();
+log("Welcome to Pokemon Towns Adventure!");
+log("Controls: 1=Thunder Shock, 2=Quick Attack, 3=Tail Whip, 4=Potion, ESC=Flee");
+log("Press EXPLORE to begin your legendary journey!");
+},1000);
+}
+
+function continueGame(){
+const saved=localStorage.getItem("pokemonSave");
+if(!saved){alert("No save data found! Start a new game first.");return}
+startGame();
+setTimeout(()=>loadGame(),500);
+}
+
+function showHowToPlay(){document.getElementById('howToPlayModal').style.display='flex'}
+function closeHowToPlay(){document.getElementById('howToPlayModal').style.display='none'}
+function backToTitle(){
+document.getElementById('gameContainer').classList.remove('active');
+setTimeout(()=>{
+document.getElementById('gameContainer').style.display='none';
+const title=document.getElementById('titleScreen');
+title.style.display='flex';
+setTimeout(()=>title.classList.remove('hidden'),50);
+},500);
+}
+
+function log(text){
+const logEl=document.getElementById("log");
+const time=new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+logEl.innerHTML+=`[${time}] -> ${text}<br>`;
+logEl.scrollTop=logEl.scrollHeight;
+}
+
+function updateUI(){
+document.getElementById("trainerInfo").innerHTML=`Trainer: <strong>${player.name}</strong>`;
+document.getElementById("statusInfo").textContent=`Pokemon: ${player.pokemon.length} | Badges: ${player.badges.length}/8`;
+document.getElementById("potionCount").textContent=`x${player.potions}`;
+const hero=player.pokemon[0];
+document.getElementById("heroLevel").textContent=`Lv.${hero.level}`;
+document.getElementById("heroHP").textContent=`${hero.hp}/${hero.maxHp}`;
+document.getElementById("heroATK").textContent=hero.atk;
+document.getElementById("heroExp").style.width=`${(hero.exp/hero.maxExp)*100}%`;
+Object.keys(TOWNS).forEach(town=>{
+const btn=document.getElementById(`btn-${town.split(' ')[0]}`);
+if(btn)btn.classList.toggle("active",town===player.currentTown);
+});
+}
+
+function getDexNumber(name){return POKEDEX_DATA[name]?.id||25}
+
+function travelTo(townName){
+if(townName===player.currentTown){log(`You're already in ${townName}!`);return}
+if(townName==="Cerulean City"&&!player.badges.includes("Boulder")){log("Access denied! You need the Boulder Badge!");return}
+player.currentTown=townName;
+const town=TOWNS[townName];
+document.getElementById("townName").textContent=townName;
+document.getElementById("townDesc").textContent=town.desc;
+document.getElementById("townName").style.color=town.color;
+log(`Marching to ${townName}...`);
+setTimeout(()=>{log(`Welcome to ${townName}! ${town.desc}`);updateUI()},800);
+}
+
+function hideAllEffects(){
+document.querySelectorAll('.skill-effect,.screen-flash,.levelup-overlay,.evolution-glow').forEach(e=>e.style.display='none');
+}
+
+function showSkillEffect(effectId,duration=1500){
+hideAllEffects();
+const effect=document.getElementById(effectId);
+if(effect){
+effect.style.display='block';
+const clones=effect.cloneNode(true);
+effect.parentNode.replaceChild(clones,effect);
+clones.style.display='block';
+setTimeout(()=>clones.style.display='none',duration);
+return clones;
+}
+return null;
+}
+
+function showScreenFlash(){
+const flash=document.getElementById('screenFlash');
+flash.style.display='block';
+setTimeout(()=>flash.style.display='none',1200);
+}
+
+function showDamagePopup(damage,type,targetSide){
+const popup=document.getElementById('damagePopup');
+const target=document.getElementById(targetSide);
+const rect=target.getBoundingClientRect();
+const battleRect=document.getElementById('battleArea').getBoundingClientRect();
+popup.textContent=type==='crit'?`${damage}!`:type==='heal'?`+${damage}`:`-${damage}`;
+popup.className=`damage-popup ${type}`;
+popup.style.display='block';
+popup.style.left=(rect.left-battleRect.left+rect.width/2-20)+'px';
+popup.style.top=(rect.top-battleRect.top-10)+'px';
+setTimeout(()=>popup.style.display='none',1500);
+}
+
+function showLevelUpEffect(level){
+const overlay=document.getElementById('levelupOverlay');
+document.getElementById('levelupText').textContent=`LEVEL ${level}!`;
+overlay.style.display='flex';
+overlay.innerHTML=overlay.innerHTML;
+overlay.style.display='flex';
+setTimeout(()=>overlay.style.display='none',2500);
+}
+
+function showEvolutionGlow(){
+const glow=document.getElementById('evolutionGlow');
+glow.classList.add('active');
+setTimeout(()=>glow.classList.remove('active'),4000);
+}
+
+function startBattle(enemyName,isGym=false){
+playerMon=player.pokemon[0];
+const levelMultiplier=1+(playerMon.level-5)*.15;
+const baseHp=isGym?80:65;
+const baseAtk=isGym?55:45;
+currentEnemy={name:enemyName,hp:Math.floor(baseHp*levelMultiplier),maxHp:Math.floor(baseHp*levelMultiplier),atk:Math.floor(baseAtk*levelMultiplier),isGym:isGym};
+document.getElementById("enemyName").textContent=currentEnemy.name.toUpperCase();
+document.getElementById("enemySprite").src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getDexNumber(enemyName)}.png`;
+document.getElementById("battleLog").innerHTML=`<span style="color:#f0c030">${isGym?'GYM LEADER':'A wild'} ${enemyName} appeared!</span>`;
+document.getElementById("playerName").textContent=`${playerMon.name.toUpperCase()} Lv.${playerMon.level}`;
+document.getElementById("enemySprite").classList.remove('faint-animation','hit-flash','shake-hard');
+document.getElementById("playerSprite").classList.remove('faint-animation','hit-flash','shake-hard','victory-bounce');
+document.getElementById("enemySprite").style.opacity='1';
+document.getElementById("playerSprite").style.opacity='1';
+hideAllEffects();
+document.getElementById("battleModal").style.display="flex";
+inBattle=true;
+battleButtonsLocked=false;
+updateHPBars();
+}
+
+function updateHPBars(){
+const pPct=Math.max(0,Math.floor((playerMon.hp/playerMon.maxHp)*100));
+const ePct=Math.max(0,Math.floor((currentEnemy.hp/currentEnemy.maxHp)*100));
+document.getElementById("playerHPBar").style.width=pPct+"%";
+document.getElementById("enemyHPBar").style.width=ePct+"%";
+document.getElementById("playerHPText").textContent=`${playerMon.hp}/${playerMon.maxHp}`;
+document.getElementById("enemyHPText").textContent=`${currentEnemy.hp}/${currentEnemy.maxHp}`;
+document.getElementById("playerHPBar").classList.toggle("red",pPct<30);
+document.getElementById("playerHPBar").classList.toggle("yellow",pPct<60&&pPct>=30);
+document.getElementById("enemyHPBar").classList.toggle("red",ePct<30);
+}
+
+function playerAttack(move){
+if(!currentEnemy||currentEnemy.hp<=0||!inBattle||battleButtonsLocked)return;
+battleButtonsLocked=true;
+let damage=18+Math.floor(Math.random()*12);
+if(move==="Thunder Shock")damage=28+Math.floor(Math.random()*15);
+else if(move==="Quick Attack")damage=22+Math.floor(Math.random()*8);
+else if(move==="Tail Whip"){damage=15+Math.floor(Math.random()*5);currentEnemy.atk=Math.max(20,currentEnemy.atk-5)}
+let isCritical=Math.random()<.1;
+if(isCritical)damage=Math.floor(damage*1.5);
+
+document.getElementById("playerSprite").classList.add("attack-charge");
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#888">${playerMon.name.toUpperCase()} is charging ${move}...</span>`;
+
+setTimeout(()=>{
+document.getElementById("playerSprite").classList.remove("attack-charge");
+document.getElementById("playerSprite").classList.add("attack-lunge");
+let effectId,effectDuration;
+if(move==="Thunder Shock"){effectId='thunderEnemy';effectDuration=1500;showScreenFlash();document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0c030">THUNDER SHOCK!</span>`}
+else if(move==="Quick Attack"){effectId='speedEnemy';effectDuration=1200;document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0ff">QUICK ATTACK!</span>`}
+else if(move==="Tail Whip"){effectId='vortexEnemy';effectDuration=1600;document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0f">TAIL WHIP!</span>`}
+showSkillEffect(effectId,effectDuration);
+
+setTimeout(()=>{
+document.getElementById("playerSprite").classList.remove("attack-lunge");
+currentEnemy.hp=Math.max(0,currentEnemy.hp-damage);
+document.getElementById("enemySprite").classList.add("hit-flash");
+document.getElementById("enemySide").classList.add("shake-hard");
+showDamagePopup(damage,isCritical?'crit':'normal','enemySide');
+const critText=isCritical?" <span style='color:#f0c030'>CRITICAL HIT!</span>":"";
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0f0">${damage} DMG dealt!${critText}</span>`;
+if(move==="Tail Whip")document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0af">Enemy attack power dropped!</span>`;
+updateHPBars();
+setTimeout(()=>{document.getElementById("enemySprite").classList.remove("hit-flash");document.getElementById("enemySide").classList.remove("shake-hard")},700);
+
+if(currentEnemy.hp<=0){setTimeout(()=>handleVictory(),500);return}
+setTimeout(()=>{battleButtonsLocked=false;enemyAttack()},3500);
+},1000);
+},800);
+}
+
+function handleVictory(){
+document.getElementById("enemySprite").classList.add("faint-animation");
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0c030;font-size:14px">VICTORY! ${currentEnemy.name.toUpperCase()} was defeated!</span>`;
+const expGain=currentEnemy.isGym?80:40;
+setTimeout(()=>{
+gainExp(expGain);
+if(!player.pokedex.has(currentEnemy.name)){player.pokedex.add(currentEnemy.name);document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0ff">${currentEnemy.name} registered to Pokedex!</span>`}
+if(currentEnemy.isGym){const town=TOWNS[player.currentTown];if(town.gym&&!player.badges.includes(town.gym.badge)){player.badges.push(town.gym.badge);player.gymDefeated[town.gym.leader]=true;document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0c030;font-size:14px">You earned the ${town.gym.badge} Badge!</span>`}}
+updateUI();
+document.getElementById("playerSprite").classList.add("victory-bounce");
+setTimeout(()=>{document.getElementById("playerSprite").classList.remove("victory-bounce");battleButtonsLocked=false;endBattle()},3000);
+},2000);
+}
+
+function enemyAttack(){
+if(!currentEnemy||currentEnemy.hp<=0||!playerMon||playerMon.hp<=0||!inBattle)return;
+const damage=Math.max(8,Math.floor(currentEnemy.atk*(.7+Math.random()*.6)));
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f66">${currentEnemy.name.toUpperCase()} is gathering power...</span>`;
+setTimeout(()=>{
+document.getElementById("enemySprite").classList.add("attack-lunge");
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f66">${currentEnemy.name.toUpperCase()} launched an attack!</span>`;
+setTimeout(()=>{
+showSkillEffect('emberPlayer',1500);
+document.getElementById("battleBox").classList.add("screen-shake-strong");
+setTimeout(()=>{
+playerMon.hp=Math.max(0,playerMon.hp-damage);
+document.getElementById("enemySprite").classList.remove("attack-lunge");
+document.getElementById("playerSprite").classList.add("hit-flash");
+document.getElementById("playerSide").classList.add("shake-hard");
+document.getElementById("battleBox").classList.remove("screen-shake-strong");
+showDamagePopup(damage,'normal','playerSide');
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f66">${damage} DMG taken!</span>`;
+updateHPBars();
+setTimeout(()=>{document.getElementById("playerSprite").classList.remove("hit-flash");document.getElementById("playerSide").classList.remove("shake-hard")},700);
+if(playerMon.hp<=0){
+setTimeout(()=>{
+document.getElementById("playerSprite").classList.add("faint-animation");
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f00;font-size:14px">${playerMon.name.toUpperCase()} fainted!</span>`;
+inBattle=false;
+setTimeout(()=>{endBattle();log(`${playerMon.name} fainted! Rush to a Pokemon Center!`)},2500);
+},800);
+}
+},1000);
+},500);
+},1000);
+}
+
+function endBattle(){
+inBattle=false;
+battleButtonsLocked=false;
+document.getElementById("battleModal").style.display="none";
+currentEnemy=null;
+hideAllEffects();
+}
+
+function gainExp(amount){
+const hero=player.pokemon[0];
+hero.exp+=amount;
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0af">+${amount} EXP gained!</span>`;
+if(hero.exp>=hero.maxExp)setTimeout(()=>levelUp(),1000);
+}
+
+function levelUp(){
+const hero=player.pokemon[0];
+hero.level++;
+hero.exp=0;
+hero.maxExp=Math.floor(hero.maxExp*1.3);
+hero.maxHp+=15;
+hero.hp=hero.maxHp;
+hero.atk+=8;
+showLevelUpEffect(hero.level);
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0c030;font-size:14px">LEVEL UP! ${hero.name} reached Level ${hero.level}!</span>`;
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0f0">HP +15 | ATK +8</span>`;
+if(hero.name==="Pikachu"&&hero.level>=16){
+setTimeout(()=>{
+showEvolutionGlow();
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f0c030;font-size:14px">EVOLUTION! Pikachu is evolving into Raichu!</span>`;
+setTimeout(()=>{
+hero.name="Raichu";
+hero.atk+=20;
+player.pokedex.add("Raichu");
+document.getElementById("mainPikachu").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png";
+document.getElementById("playerSprite").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png";
+document.getElementById("playerName").textContent="RAICHU";
+},2000);
+},1500);
+}
+}
+
+function usePotion(){
+if(player.potions<=0){log("Out of potions!");return}
+const hero=player.pokemon[0];
+if(hero.hp>=hero.maxHp){log("HP is already maxed out!");return}
+player.potions--;
+const healAmount=40;
+hero.hp=Math.min(hero.maxHp,hero.hp+healAmount);
+log(`Potion chugged! HP restored by ${healAmount} points!`);
+updateUI();
+}
+
+function usePotionInBattle(){
+if(battleButtonsLocked)return;
+if(player.potions<=0){document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f00">No potions left!</span>`;return}
+const hero=player.pokemon[0];
+if(hero.hp>=hero.maxHp){document.getElementById("battleLog").innerHTML+=`<br><span style="color:#f00">HP is full!</span>`;return}
+battleButtonsLocked=true;
+player.potions--;
+const healAmount=40;
+hero.hp=Math.min(hero.maxHp,hero.hp+healAmount);
+showDamagePopup(healAmount,'heal','playerSide');
+document.getElementById("battleLog").innerHTML+=`<br><span style="color:#0f0">Potion gulped! HP +${healAmount}!</span>`;
+updateHPBars();
+setTimeout(()=>{battleButtonsLocked=false;enemyAttack()},2000);
+}
+
+function healPokemon(){
+const town=TOWNS[player.currentTown];
+if(!town.gym&&player.currentTown!=="Pallet Town"&&player.currentTown!=="Viridian City"){log("No Pokemon Center here!");return}
+player.pokemon.forEach(p=>{p.hp=p.maxHp});
+log("Pokemon fully healed! Your team is ready to rumble!");
+updateUI();
+}
+
+function explore(){
+const town=TOWNS[player.currentTown];
+log(`Venturing into the wilds of ${player.currentTown}...`);
+setTimeout(()=>{
+const wildPokemon=town.wild[Math.floor(Math.random()*town.wild.length)];
+const encounter=Math.random();
+if(encounter<.7){log(`A wild ${wildPokemon} leaps out!`);setTimeout(()=>startBattle(wildPokemon),1000)}
+else if(encounter<.9){
+const items=["Potion","Rare Candy","Poke Ball"];
+const found=items[Math.floor(Math.random()*items.length)];
+if(found==="Potion"){player.potions++;log(`Lucky find! Potion discovered! (+1)`)}
+else if(found==="Rare Candy"){log(`Jackpot! Rare Candy found! (+50 EXP)`);gainExp(50)}
+else log(`You found a Poke Ball! (Coming soon!)`);
+}
+else log("The grass rustles... but nothing appears.");
+},1500);
+}
+
+function battleGymLeader(){
+const town=TOWNS[player.currentTown];
+if(!town.gym){log("No Gym here!");return}
+if(player.gymDefeated[town.gym.leader]){log(`You've already crushed ${town.gym.leader}!`);return}
+log(`${town.gym.leader} challenges you!`);
+setTimeout(()=>startBattle(town.gym.pokemon,true),1500);
+}
+
+function talkToNPC(){
+const dialogs=[
+"Professor Oak: 'A true trainer never gives up!'",
+"Nurse Joy: 'Welcome to the Pokemon Center!'",
+"Brock: 'My rock-hard Pokemon will crush your hopes!'",
+"Misty: 'Water flows, but my strategy cuts deeper!'",
+"Team Rocket: 'Prepare for trouble! Make it double!'"
+];
+log(dialogs[Math.floor(Math.random()*dialogs.length)]);
+}
+
+function showDuplicateMenu(){
+if(player.pokemon.length>=6){log("Team is full!");return}
+const original=player.pokemon[0];
+const clone={...original,hp:original.maxHp,name:original.name+" Jr."};
+player.pokemon.push(clone);
+log(`${clone.name} cloned successfully!`);
+updateUI();
+}
+
+function showPokedex(){
+const content=document.getElementById("pokedexContent");
+content.innerHTML="";
+Object.entries(POKEDEX_DATA).forEach(([name,data])=>{
+const caught=player.pokedex.has(name);
+const entry=document.createElement("div");
+entry.className=`pokedex-entry ${caught?'pokedex-caught':'pokedex-uncaught'}`;
+entry.innerHTML=`<img class="pokedex-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png" alt="${name}"><div style="flex:1;text-align:left"><strong>#${String(data.id).padStart(3,'0')} ${name}</strong><br><span style="color:#666">${data.type}</span><br><span style="font-size:9px">${caught?data.desc:'???'}</span></div><div style="font-size:20px">${caught?'✅':'❓'}</div>`;
+content.appendChild(entry);
+});
+const summary=document.createElement("div");
+summary.style.cssText="color:#fff;margin-top:10px;font-size:12px";
+summary.textContent=`${player.pokedex.size}/${Object.keys(POKEDEX_DATA).length} Pokemon captured!`;
+content.appendChild(summary);
+document.getElementById("pokedexModal").style.display="flex";
+}
+
+function closePokedex(){document.getElementById("pokedexModal").style.display="none"}
+
+function saveGame(){
+localStorage.setItem("pokemonSave",JSON.stringify({...player,pokedex:Array.from(player.pokedex)}));
+log("Progress saved!");
+}
+
+function loadGame(){
+const saved=localStorage.getItem("pokemonSave");
+if(!saved){log("No save data found!");return}
+const data=JSON.parse(saved);
+player={...data,pokedex:new Set(data.pokedex||["Pikachu"])};
+player.pokemon.forEach(p=>{if(!p.level)p.level=5;if(!p.exp)p.exp=0;if(!p.maxExp)p.maxExp=100});
+const town=TOWNS[player.currentTown];
+document.getElementById("townName").textContent=player.currentTown;
+document.getElementById("townDesc").textContent=town?.desc||"Where legends begin!";
+document.getElementById("townName").style.color=town?.color||"#f0c030";
+const hero=player.pokemon[0];
+if(hero.name==="Raichu"){
+document.getElementById("mainPikachu").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png";
+document.getElementById("playerSprite").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png";
+}
+log("Save loaded! Welcome back!");
+updateUI();
+}
+
+function resetGame(){
+localStorage.removeItem("pokemonSave");
+player={name:"Noknehrn",currentTown:"Pallet Town",pokemon:[{name:"Pikachu",hp:80,maxHp:80,atk:55,level:5,exp:0,maxExp:100}],pokedex:new Set(["Pikachu"]),badges:[],potions:3,gymDefeated:{}};
+document.getElementById("townName").textContent="Pallet Town";
+document.getElementById("townDesc").textContent="Where legends are born!";
+document.getElementById("townName").style.color="#f0c030";
+document.getElementById("log").innerHTML="";
+document.getElementById("mainPikachu").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
+document.getElementById("playerSprite").src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
+log("Fresh start! A new legend begins!");
+updateUI();
+}
+
+document.addEventListener('keydown',(e)=>{
+if(!inBattle||battleButtonsLocked)return;
+switch(e.key){
+case '1':playerAttack('Thunder Shock');break;
+case '2':playerAttack('Quick Attack');break;
+case '3':playerAttack('Tail Whip');break;
+case '4':usePotionInBattle();break;
+case 'Escape':endBattle();break;
+}
+});
+
+updateUI();
+</script>
+</body>
+</html>
+    
